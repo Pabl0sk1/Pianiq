@@ -97,11 +97,6 @@ export function LoginPage() {
           {busy ? 'Entrando…' : 'Iniciar sesión'}
         </button>
       </form>
-      {import.meta.env.DEV && (
-        <p className="auth-dev">
-          Cuenta de pruebas: <code>admin</code> / <code>admin123</code>
-        </p>
-      )}
     </AuthLayout>
   );
 }
