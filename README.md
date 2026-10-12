@@ -36,6 +36,7 @@ Curso de **4 niveles, 70 lecciones y 98 ejercicios interactivos**, sin saltos: d
 ![Pianiq — canciones en modo oscuro](docs/canciones-oscuro.png)
 
 - **12 obras clásicas a dos manos:** Bach, Beethoven, Mozart, Satie, Pachelbel, Vivaldi, Grieg, Brahms…
+- **Música de dibujos animados:** 7 obras de dominio público que hicieron famosas los cortos clásicos, entre ellas *The Entertainer* completo y el primer movimiento entero de la Quinta de Beethoven.
 - **Al reproducir:**
   - cascada de notas;
   - partitura activable (arriba, al lado o en ventana flotante);
@@ -128,4 +129,8 @@ src/
 
 - Muestras de piano: *Salamander Grand Piano* de Alexander Holm (CC-BY 3.0).
 - Transcripción de audio: *Basic Pitch* de Spotify (Apache 2.0).
-- Las obras clásicas incluidas son de dominio público; los arreglos son propios.
+- Las obras clásicas incluidas son de dominio público; salvo donde se indica, los arreglos son propios.
+- Del [Mutopia Project](https://www.mutopiaproject.org), convertidas de MIDI en `src/data/pd-midi/`:
+  - *The Entertainer* (Scott Joplin), edición original de 1902, dominio público.
+  - *Sinfonía n.º 5, I. Allegro con brio* (Beethoven), dominio público; reducción a piano propia a partir de la partitura orquestal.
+  - *El Danubio azul* (Strauss II), arreglo para piano de N. Kouremenos, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). La conversión se distribuye bajo la misma licencia.

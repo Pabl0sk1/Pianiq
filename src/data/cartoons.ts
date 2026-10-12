@@ -1,4 +1,7 @@
-import type { Song } from '../lib/notation';
+import type { NoteEvent, Song } from '../lib/notation';
+import danubeEvents from './pd-midi/danube.json';
+import fifthEvents from './pd-midi/fifth.json';
+import entertainerEvents from './pd-midi/entertainer.json';
 
 // Música de dominio público que los dibujos animados clásicos hicieron famosa.
 // Arreglos propios para piano a dos manos. Duraciones en negras (q=1, e=0.5, s=0.25).
@@ -12,7 +15,7 @@ const ccG = 'G2:e F3+B3 D3 F3+B3';
 const ccL = [ccC, ccG, ccG, ccG, ccC, ccC, ccG, ccG, ccG, ccC].join(' | ');
 const cancan: Song = {
   id: 'cartoon-cancan',
-  title: 'Can-can',
+  title: 'Can-can (tema principal)',
   composer: 'Jacques Offenbach',
   period: 'Orfeo en los infiernos · 1858',
   difficulty: 2,
@@ -42,7 +45,7 @@ const vF = 'F#2+C#3+A#3:q. F#2+C#3:q. F#2+C#3+A#3:q.';
 const valkL = [vBm, vBm, vD, vD, vD, vF].join(' | ');
 const valkyries: Song = {
   id: 'cartoon-valkyries',
-  title: 'La cabalgata de las valquirias',
+  title: 'La cabalgata de las valquirias (tema principal)',
   composer: 'Richard Wagner',
   period: 'La valquiria · 1856',
   difficulty: 3,
@@ -58,84 +61,53 @@ const valkyries: Song = {
 
 // ---------------------------------------------------------------------------
 // El Danubio azul — Johann Strauss II
-const dn = (low: string, mid: string, top1: string, top2: string, last: string) =>
-  `${low}:q ${low} ${mid} | ${last}:h. | r:q ${top1} ${top1} | r:q ${top2} ${top2}`;
-const danubeR = [
-  dn('D4', 'F#4', 'A5', 'F#5', 'A4'),
-  dn('D4', 'F#4', 'B5', 'G5', 'A4'),
-  dn('C#4', 'E4', 'B5', 'G5', 'B4'),
-  dn('C#4', 'E4', 'B5', 'A5', 'B4'),
-  dn('D4', 'F#4', 'D6', 'A5', 'A4'),
-].join(' | ');
-const wD = 'D3:q F#3+A3 F#3+A3';
-const wG = 'G2:q D3+B3 D3+B3';
-const wA = 'A2:q E3+G3 E3+G3';
-const danubeL = [wD, wD, wD, wD, wD, wD, wG, wG, wA, wA, wA, wA, wA, wA, wA, wA, wD, wD, wD, wD].join(' | ');
+// Arreglo para piano de N. Kouremenos (Mutopia Project, CC BY-SA 4.0).
 const danube: Song = {
   id: 'cartoon-danube',
   title: 'El Danubio azul',
   composer: 'Johann Strauss II',
-  period: 'Vals · 1866',
+  period: 'Vals · 1866 · arreglo de N. Kouremenos',
   difficulty: 2,
-  bpm: 160,
+  bpm: 150,
   timeSignature: [3, 4],
   description:
-    'El vals por excelencia, recurso habitual en los cortos clásicos de animación para escenas de baile, patinaje o elegancia exagerada. Mano izquierda "um-pa-pa" y los dos acordes agudos como pequeños saltos.',
-  tracks: [
-    { hand: 'R', notes: `r:h D4:q | ${danubeR} | D5+F#5+A5+D6:h r:q` },
-    { hand: 'L', notes: `r:h. | ${danubeL} | D2+D3:h r:q` },
-  ],
+    'El vals por excelencia, recurso habitual en los cortos clásicos de animación para escenas de baile, patinaje o elegancia exagerada. Arreglo para piano del tema principal (Mutopia Project, CC BY-SA 4.0).',
+  events: danubeEvents as NoteEvent[],
+  source: 'midi',
 };
 
 // ---------------------------------------------------------------------------
-// Quinta sinfonía (inicio) — Beethoven
-const fifth = `r:e G4:e G4 G4 | Eb4:3 | r:e F4:e F4 F4 | D4:4 |
-  r:e G4:e G4 G4 | Eb4:e Ab4 Ab4 Ab4 | G4:e Eb5 Eb5 Eb5 | C5:2 |
-  r:e G4:e G4 G4 | D4:e Ab4 Ab4 Ab4 | G4:e F5 F5 F5 | D5:2 |
-  r:e G4:e G4 G4 | Eb4:2 | r:e F4:e F4 F4 | D4:2 | C4+Eb4+G4+C5:2`;
-const fifthL = fifth
-  .replace(/([A-G]b?)(\d)/g, (_, n: string, o: string) => n + (Number(o) - 1))
-  .replace('C3+Eb3+G3+C4:2', 'C2+C3:2');
+// Quinta sinfonía, 1.er movimiento completo — Beethoven
+// Partitura orquestal de Mutopia Project (dominio público), reducida a piano.
 const fifthSym: Song = {
   id: 'cartoon-fifth',
-  title: 'Quinta sinfonía (inicio)',
+  title: 'Quinta sinfonía · I. Allegro con brio',
   composer: 'Ludwig van Beethoven',
-  period: 'Sinfonía n.º 5 · 1808',
-  difficulty: 1,
-  bpm: 108,
+  period: 'Sinfonía n.º 5 · 1808 · reducción para piano',
+  difficulty: 5,
+  bpm: 192,
   timeSignature: [2, 4],
   description:
-    '"Ta-ta-ta-TAAA": el golpe dramático más usado de los dibujos animados cuando algo sale terriblemente mal. Las dos manos tocan al unísono en octavas, con mucha fuerza.',
-  tracks: [
-    { hand: 'R', notes: fifth, velocity: 0.9 },
-    { hand: 'L', notes: fifthL, velocity: 0.8 },
-  ],
+    '"Ta-ta-ta-TAAA": el golpe dramático de los dibujos animados cuando algo sale terriblemente mal. Aquí el primer movimiento completo, reducido a piano desde la partitura orquestal (Mutopia Project, dominio público). Desactiva el pedal automático si quieres oír los silencios dramáticos más secos.',
+  events: fifthEvents as NoteEvent[],
+  source: 'midi',
 };
 
 // ---------------------------------------------------------------------------
-// The Entertainer — Scott Joplin
-const entA = 'E5:s C6:e E5:s C6:e E5:s C6:s | C6:q C6:s D6 D#6 E6 | C6:s D6:s E6:e B5:s D6:e C6:s';
-const entR = `r:q r:e D5:s D#5:s | ${entA} | C6:q r:e D5:s D#5:s |
-  E5:s C6:e E5:s C6:e E5:s C6:s | C6:q A5:s G5 F#5 A5 | C6:s E6:e D6:s C6:s A5:s D6:e | D6:q r:e D5:s D#5:s |
-  ${entA} | C6:q r:q | C5+E5+G5+C6:q r:q`;
-const rC = 'C3:e E3+G3+C4 G2 E3+G3+C4';
-const rG = 'G2:e F3+B3 D3 F3+B3';
-const rD = 'D3:e F#3+C4 A2 F#3+C4';
-const entL = ['r:h', rC, rC, rG, rC, rC, rD, rG, rG, rC, rC, rG, rC, 'C2+C3:q r:q'].join(' | ');
+// The Entertainer — Scott Joplin (versión completa)
+// Edición original de 1902 (Mutopia Project, dominio público).
 const entertainer: Song = {
   id: 'cartoon-entertainer',
   title: 'The Entertainer',
   composer: 'Scott Joplin',
-  period: 'Ragtime · 1902',
-  difficulty: 3,
-  bpm: 76,
+  period: 'Ragtime · 1902 · edición original completa',
+  difficulty: 4,
+  bpm: 72,
   timeSignature: [2, 4],
   description:
-    'El ragtime más famoso, inseparable del cine mudo y de los cortos de animación de época. La mano izquierda salta entre bajo y acorde ("stride"); no lo toques rápido: Joplin pedía "no rápido".',
-  tracks: [
-    { hand: 'R', notes: entR },
-    { hand: 'L', notes: entL },
-  ],
+    'El ragtime más famoso, inseparable del cine mudo y de los cortos de animación de época. Versión completa de la edición original (Mutopia Project, dominio público). La mano izquierda salta entre bajo y acorde; Joplin pedía tocarlo "no rápido".',
+  events: entertainerEvents as NoteEvent[],
+  source: 'midi',
 };
 
 // ---------------------------------------------------------------------------
@@ -145,7 +117,7 @@ const mm = `${mm1} | ${mm1} | D#5:e E5 D#5 E5 G#5 E5 | G#5:e A5 G#5 E5 D#5 C#5 |
 const mmL = 'E3+B3:h. | E3+B3:h. | E3+G#3+B3:h. | A2+E3+C#4:h. | B2+F#3+D#4:h.';
 const morning: Song = {
   id: 'cartoon-morning',
-  title: 'La mañana',
+  title: 'La mañana (tema principal)',
   composer: 'Edvard Grieg',
   period: 'Peer Gynt · 1875',
   difficulty: 1,
@@ -181,7 +153,7 @@ const weasel: Song = {
   ],
 };
 
-export const CARTOON_SONGS: Song[] = [weasel, morning, fifthSym, cancan, danube, entertainer, valkyries];
+export const CARTOON_SONGS: Song[] = [weasel, morning, cancan, danube, valkyries, entertainer, fifthSym];
 
 /** Obras de la sección clásica que también son famosas por los dibujos animados. */
 export const CARTOON_ALSO = ['mountain-king'];
