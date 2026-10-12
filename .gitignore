@@ -1,0 +1,5 @@
+node_modules
+dist
+
+# Canciones de la biblioteca personal (pueden tener derechos de autor)
+src/data/library/*.json

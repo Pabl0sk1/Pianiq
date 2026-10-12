@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Aplica el modo claro/oscuro antes de pintar (evita un destello de color al cargar)
+      try {
+        var m = (JSON.parse(localStorage.getItem('piano-pro') || '{}').state || {}).ui;
+        m = m && m.colorMode ? m.colorMode : 'system';
+        if (m === 'system') m = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.mode = m;
+      } catch (e) {}
+    </script>
+    <title>Pianiq · Toca, aprende y crea al piano</title>
+    <meta name="description" content="Pianiq: piano en el navegador con curso completo, partituras, cascada de notas y sonido personalizable." />
+    <meta name="theme-color" content="#1f3044" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
