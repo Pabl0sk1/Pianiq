@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { CLASSICAL_SONGS } from '../data/songs';
 import { LIBRARY_SONGS, pinSong } from '../data/library';
 import { CARTOON_SONGS } from '../data/cartoons';
+import { CUMBIA_SONGS, ROCK_SONGS } from '../data/originals';
 import { applyAutoPedal, songEvents, songLength, type Hand, type NoteEvent, type Song } from '../lib/notation';
 import { fitRange } from '../lib/keyboard';
 import { SongPlayer } from '../audio/player';
@@ -51,7 +52,7 @@ export function Songs() {
   const naming = useApp((s) => s.ui.naming);
   const ui = useApp((s) => s.ui);
   const setUi = useApp((s) => s.setUi);
-  const all = useMemo(() => [...CLASSICAL_SONGS, ...CARTOON_SONGS, ...LIBRARY_SONGS, ...userSongs], [userSongs]);
+  const all = useMemo(() => [...CLASSICAL_SONGS, ...CARTOON_SONGS, ...CUMBIA_SONGS, ...ROCK_SONGS, ...LIBRARY_SONGS, ...userSongs], [userSongs]);
   const [songId, setSongId] = useState(() => localStorage.getItem('piano-pro-song') ?? CLASSICAL_SONGS[0].id);
   const song = all.find((s) => s.id === songId) ?? CLASSICAL_SONGS[0];
   const [creator, setCreator] = useState<Song | 'new' | null>(null);
@@ -78,8 +79,8 @@ export function Songs() {
   const samples = { loading: useLive((s) => s.samplesLoading), error: useLive((s) => s.samplesError) };
   const barLenForPedal = song.timeSignature[0] * (4 / song.timeSignature[1]);
   const playEvents = useMemo(
-    () => (ui.autoPedal ? applyAutoPedal(events, barLenForPedal, song.pickup ?? 0) : events),
-    [events, ui.autoPedal, barLenForPedal, song.pickup],
+    () => (ui.autoPedal && song.pedal !== false ? applyAutoPedal(events, barLenForPedal, song.pickup ?? 0) : events),
+    [events, ui.autoPedal, barLenForPedal, song.pickup, song.pedal],
   );
   const [low, high] = useMemo(() => fitRange(events.map((e) => e.midi), 3), [events]);
   const userHands: Hand[] = role === 'listen' ? [] : role === 'both' ? ['R', 'L'] : [role];
@@ -283,6 +284,24 @@ export function Songs() {
             </span>
           </button>
         ))}
+        {(
+          [
+            ['Cumbia · originales', CUMBIA_SONGS],
+            ['Rock · originales', ROCK_SONGS],
+          ] as const
+        ).map(([label, list]) => (
+          <Fragment key={label}>
+            <h3>{label}</h3>
+            {list.map((s) => (
+              <button key={s.id} className={`song-item ${s.id === song.id ? 'active' : ''}`} onClick={() => setSongId(s.id)}>
+                <span className="song-title">{s.title}</span>
+                <span className="song-sub">
+                  {s.period?.split(' · ')[0]} · <Stars n={s.difficulty} />
+                </span>
+              </button>
+            ))}
+          </Fragment>
+        ))}
         <h3>Biblioteca permanente</h3>
         {LIBRARY_SONGS.length === 0 && <p className="muted small">Fija aquí las canciones que conviertas o importes para tenerlas siempre.</p>}
         {LIBRARY_SONGS.map((s) => (
@@ -429,8 +448,9 @@ export function Songs() {
           </div>
           <div className="chip-row">
             <button
-              className={`chip ${ui.autoPedal ? 'on' : ''}`}
-              title="Mantiene las notas sonando como lo haría el pedal de un pianista"
+              className={`chip ${ui.autoPedal && song.pedal !== false ? 'on' : ''}`}
+              title={song.pedal === false ? 'Este estilo se toca sin pedal: el acompañamiento debe sonar corto y seco' : 'Mantiene las notas sonando como lo haría el pedal de un pianista'}
+              disabled={song.pedal === false}
               onClick={() => setUi({ autoPedal: !ui.autoPedal })}
             >
               <Icon name="pedal" size={14} /> Pedal automático

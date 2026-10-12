@@ -1,5 +1,6 @@
 import { rep, type NoteEvent, type Song } from '../lib/notation';
 import mountainEvents from './pd-midi/mountain-king.json';
+import { CLASSICAL_EXTRA } from './classical-extra';
 
 // Todas las duraciones están en negras (q=1, e=0.5, s=0.25, h=2, w=4, t=1/3).
 // Para añadir una canción nueva basta con escribir sus manos en este formato.
@@ -178,33 +179,6 @@ const prelude: Song = {
   ],
 };
 
-// ---------------------------------------------------------------------------
-// Sonata "Claro de Luna", 1er mov. — Beethoven (introducción)
-const tri = (a: string, b: string, c: string, n: number) => rep(`${a}:t ${b} ${c}`, n);
-const moonlight: Song = {
-  id: 'moonlight',
-  title: 'Sonata "Claro de Luna" (introducción)',
-  composer: 'Ludwig van Beethoven',
-  period: 'Clásico / Romántico · 1801',
-  difficulty: 3,
-  bpm: 54,
-  timeSignature: [4, 4],
-  description:
-    'Adagio sostenuto, Op. 27 n.º 2. Tresillos continuos sobre octavas graves: toca muy legato, pianissimo, con pedal cambiando en cada armonía.',
-  tracks: [
-    {
-      hand: 'R',
-      notes: `${tri('G#3', 'C#4', 'E4', 4)} | ${tri('G#3', 'C#4', 'E4', 4)} |
-        ${tri('A3', 'C#4', 'E4', 2)} ${tri('A3', 'D4', 'F#4', 2)} |
-        G#3:t B#3 F#4 G#3 C#4 E4 G#3 C#4 D#4 F#3 B#3 D#4 |
-        ${tri('G#3', 'C#4', 'E4', 4)} | G#3+C#4+E4:w`,
-    },
-    {
-      hand: 'L',
-      notes: `C#2+C#3:w | B1+B2:w | A1+A2:h F#1+F#2:h | G#1+G#2:h G#1+G#2:h | C#2+C#3:w | C#2+G#2+C#3:w`,
-    },
-  ],
-};
 
 // ---------------------------------------------------------------------------
 // Pequeña Serenata Nocturna — Mozart (K. 525, tema inicial)
@@ -344,5 +318,5 @@ export const CLASSICAL_SONGS: Song[] = [
   gymnopedie,
   furElise,
   prelude,
-  moonlight,
+  ...CLASSICAL_EXTRA,
 ];
