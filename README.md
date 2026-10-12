@@ -36,7 +36,6 @@ Curso de **4 niveles, 70 lecciones y 98 ejercicios interactivos**, sin saltos: d
 ![Pianiq — canciones en modo oscuro](docs/canciones-oscuro.png)
 
 - **30 obras clásicas a dos manos**, muchas completas: Chopin, Debussy, Beethoven (la *Claro de Luna* entera), Mozart, Bach, Satie, Joplin, Grieg…
-- **Cumbia y rock:** composiciones originales al estilo de la cumbia y del rock de los 80.
 - **Música de dibujos animados:** 14 obras de dominio público que hicieron famosas los cortos clásicos y *Fantasía*: la *Tocata y fuga* de Bach, la *Marcha nupcial*, *Carmen*, la *Marcha turca*, *Maple Leaf Rag*, la Quinta de Beethoven y más, la mayoría completas.
 - **Al reproducir:**
   - cascada de notas;
@@ -162,4 +161,3 @@ src/
   - *Carmen: preludio* (Bizet), versión para piano, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/).
   - Clásicas completas, dominio público: Chopin (*Vals del minuto*, *Gota de agua*, Preludio Op. 28 n.º 4, *Fantasía-Impromptu*), Debussy (*Claro de luna*, *Arabesca n.º 1*), Beethoven (*Patética*, I), Bach (*Invención n.º 8*) y Joplin (*Solace*, *The Easy Winners*, *Elite Syncopations*).
   - Clásicas completas con licencia CC BY-SA (se distribuyen bajo la misma licencia): Chopin, Nocturnos Op. 9 n.º 2 (3.0) y n.º 3 (4.0); Beethoven, Sonata *Claro de Luna* completa (2.5); Mozart, Sonata K. 545, I (3.0); Bach, *Invención n.º 1* (3.0); Satie, *Gnossienne n.º 1* (4.0).
-- *Cumbia de las teclas*, *Cumbia alegre*, *Himno de estadio* y *Balada eléctrica* son composiciones originales de Pianiq.

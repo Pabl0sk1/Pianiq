@@ -44,8 +44,6 @@ export interface Song {
   events?: NoteEvent[]; // canciones importadas / grabadas
   user?: boolean;
   source?: 'notation' | 'midi' | 'recording' | 'audio';
-  /** false = estilo con acompañamiento seco (cumbia, rock): no usar el pedal automático */
-  pedal?: boolean;
   /** Negras de anacrusa antes del primer compás completo */
   pickup?: number;
   /** Canción guardada en src/data/library (biblioteca permanente) */
