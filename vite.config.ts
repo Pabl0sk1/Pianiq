@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createApp } from './server/app.ts';
 
@@ -38,17 +39,29 @@ function libraryWriter(): Plugin {
         req.on('data', (c) => (body += c));
         req.on('end', async () => {
           try {
-            const song = JSON.parse(body);
-            const slug = String(song.title || song.id)
-              .normalize('NFD')
-              .replace(/[̀-ͯ]/g, '')
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/^-|-$/g, '')
-              .slice(0, 60);
+            // Acepta una canción o una lista (importación múltiple: una sola escritura → una sola recarga)
+            const parsed = JSON.parse(body);
+            const songs: { id: string; title?: string }[] = Array.isArray(parsed) ? parsed : [parsed];
             await mkdir(dir, { recursive: true });
-            await writeFile(resolve(dir, `${slug || song.id}.json`), JSON.stringify(song));
-            res.end('ok');
+            for (const song of songs) {
+              const base =
+                String(song.title || song.id)
+                  .normalize('NFD')
+                  .replace(/[̀-ͯ]/g, '')
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-|-$/g, '')
+                  .slice(0, 60) || song.id;
+              // No pisar otra canción distinta con el mismo nombre
+              let slug = base;
+              for (let n = 2; existsSync(resolve(dir, `${slug}.json`)); n++) {
+                const other = JSON.parse(await readFile(resolve(dir, `${slug}.json`), 'utf8'));
+                if (other.id === song.id) break;
+                slug = `${base}-${n}`;
+              }
+              await writeFile(resolve(dir, `${slug}.json`), JSON.stringify(song));
+            }
+            res.end(String(songs.length));
           } catch (e) {
             res.statusCode = 400;
             res.end(String(e));

@@ -2,6 +2,7 @@
 // Se carga bajo demanda: TensorFlow.js y el modelo solo se descargan al convertir.
 import { midiToName } from './music';
 import type { Hand, NoteEvent, Song } from './notation';
+import { nameFromFile, uniqueId } from './midi';
 
 export type SourceKind = 'piano' | 'mix';
 
@@ -175,9 +176,9 @@ export async function convertAudio(file: File, opts: ConvertOptions): Promise<So
   });
 
   return {
-    id: `audio-${Date.now()}`,
-    title: file.name.replace(/\.[^.]+$/, ''),
-    composer: 'Transcrito de audio',
+    id: uniqueId('audio'),
+    title: nameFromFile(file.name).title,
+    composer: nameFromFile(file.name).composer ?? 'Transcrito de audio',
     difficulty: 3,
     bpm,
     timeSignature: [4, 4],

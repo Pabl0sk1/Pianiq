@@ -2,6 +2,24 @@ import { Midi } from '@tonejs/midi';
 import { midiToName } from './music';
 import type { Hand, NoteEvent, Song } from './notation';
 
+/** Identificador único (en una importación múltiple varios archivos llegan en el mismo milisegundo). */
+export const uniqueId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+/**
+ * Título y autor a partir del nombre del archivo:
+ * "Bon_Jovi - Livin on a Prayer (piano).mid" → { composer: 'Bon Jovi', title: 'Livin on a Prayer (piano)' }
+ */
+export function nameFromFile(fileName: string): { title: string; composer?: string } {
+  const base = fileName
+    .replace(/\.[^.]+$/, '')
+    .replace(/[_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const parts = base.split(/\s+[-–—]\s+/);
+  if (parts.length >= 2 && parts[0].length <= 40) return { composer: parts[0].trim(), title: parts.slice(1).join(' - ').trim() };
+  return { title: base || 'Sin título' };
+}
+
 /** Importa un archivo .mid y lo convierte en una canción de la biblioteca. */
 export async function importMidiFile(file: File): Promise<Song> {
   const midi = new Midi(await file.arrayBuffer());
@@ -29,9 +47,9 @@ export async function importMidiFile(file: File): Promise<Song> {
   });
   events.sort((a, b) => a.time - b.time || a.midi - b.midi);
   return {
-    id: `midi-${Date.now()}`,
-    title: midi.name || file.name.replace(/\.midi?$/i, ''),
-    composer: 'Importado (MIDI)',
+    id: uniqueId('midi'),
+    title: nameFromFile(file.name).title || midi.name,
+    composer: nameFromFile(file.name).composer ?? 'Importado (MIDI)',
     difficulty: 3,
     bpm,
     timeSignature: ts && ts.length === 2 ? ts : [4, 4],

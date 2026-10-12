@@ -2944,3 +2944,88 @@ a.nav-btn,
 a.brand {
   text-decoration: none;
 }
+
+/* ---------- Importación múltiple ---------- */
+.batch {
+  display: grid;
+  gap: 10px;
+}
+.batch-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card-2);
+}
+.batch-list li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--line);
+}
+.batch-list li:last-child {
+  border-bottom: 0;
+}
+.batch-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.batch-msg {
+  color: var(--muted);
+  font-size: 12.5px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.batch-icon {
+  display: grid;
+  place-items: center;
+}
+.batch-done .batch-icon {
+  color: var(--ok);
+}
+.batch-error .batch-icon,
+.batch-error .batch-msg {
+  color: var(--bad);
+}
+.batch-pending {
+  opacity: 0.55;
+}
+.batch-icon .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+.spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.batch-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--ok-soft);
+  border-left: 3px solid var(--ok);
+  font-size: 14px;
+}

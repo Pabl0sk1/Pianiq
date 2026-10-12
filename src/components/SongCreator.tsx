@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/store';
 import { songEvents, tokenize, type Song } from '../lib/notation';
 import { importMidiFile } from '../lib/midi';
+import { canPin, pinSongs } from '../data/library';
 import { convertAudio, fetchAudioFromUrl, type SourceKind } from '../lib/audioToMidi';
 import { SongPlayer } from '../audio/player';
-import { NumberField, Select, Slider } from './Controls';
+import { NumberField, Select, Slider, Toggle } from './Controls';
 import { Icon } from './Icon';
 
 const preview = new SongPlayer();
@@ -36,6 +37,13 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ---- Importación múltiple ----------------------------------------------
+  type Item = { name: string; status: 'pending' | 'working' | 'done' | 'error'; msg?: string; pct?: number };
+  const [queue, setQueue] = useState<Item[]>([]);
+  const [pin, setPin] = useState(canPin);
+  const [batchDone, setBatchDone] = useState<{ ok: number; pinned: boolean; first?: Song } | null>(null);
+  const running = queue.some((q) => q.status === 'working' || q.status === 'pending') && !batchDone;
 
   useEffect(() => () => preview.stop(), []);
 
@@ -87,28 +95,94 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
     onSaved(s);
   };
 
-  const onFile = async (f: File | undefined) => {
-    if (!f) return;
-    try {
-      const s = await importMidiFile(f);
-      addUserSong(s);
-      onSaved(s);
-    } catch (e) {
-      setError(`No se pudo leer el archivo MIDI: ${(e as Error).message}`);
+  const isMidi = (f: File) => /\.midi?$/i.test(f.name) || f.type === 'audio/midi';
+  const isAudio = (f: File) => f.type.startsWith('audio/') && !isMidi(f) || /\.(mp3|wav|ogg|m4a|flac|aac)$/i.test(f.name);
+
+  /** Procesa varios archivos en cola y, al final, los fija juntos en la biblioteca (o los añade a Mis canciones). */
+  const runBatch = async (list: FileList | File[] | null | undefined, type: 'midi' | 'audio') => {
+    const files = Array.from(list ?? []).filter(type === 'midi' ? isMidi : isAudio);
+    if (!files.length || running) return;
+    setError(null);
+    setBatchDone(null);
+    const items: Item[] = files.map((f) => ({ name: f.name, status: 'pending' }));
+    setQueue(items);
+    const update = (i: number, patch: Partial<Item>) => setQueue((q) => q.map((it, j) => (j === i ? { ...it, ...patch } : it)));
+    const songs: Song[] = [];
+    for (let i = 0; i < files.length; i++) {
+      update(i, { status: 'working', pct: 0 });
+      try {
+        const song =
+          type === 'midi'
+            ? await importMidiFile(files[i])
+            : await convertAudio(files[i], { kind, sensitivity: sens, bpm: audioBpm, onProgress: (stage, pct) => update(i, { msg: stage, pct }) });
+        if (!song.events?.length) throw new Error('El archivo no contiene notas.');
+        songs.push(song);
+        update(i, { status: 'done', msg: `${song.title} · ${song.events.length} notas` });
+      } catch (e) {
+        const msg = (e as Error).message;
+        update(i, { status: 'error', msg: type === 'midi' && !/notas/.test(msg) ? 'No es un archivo MIDI válido' : msg || 'No se pudo leer' });
+      }
     }
+    const pinned = pin && songs.length > 0;
+    if (pinned) {
+      try {
+        await pinSongs(songs);
+      } catch (e) {
+        setError(`No se pudieron fijar en la biblioteca (${(e as Error).message}). Se guardaron en Mis canciones.`);
+        songs.forEach(addUserSong);
+        setBatchDone({ ok: songs.length, pinned: false, first: songs[0] });
+        return;
+      }
+    } else songs.forEach(addUserSong);
+    // Un solo archivo: se abre directamente, como antes
+    if (songs.length === 1 && files.length === 1) return onSaved(songs[0]);
+    setBatchDone({ ok: songs.length, pinned, first: songs[0] });
   };
 
-  const onAudio = async (f: File | undefined | 'link') => {
-    if (!f || busy) return;
+  const BatchView = () =>
+    queue.length > 0 ? (
+      <div className="batch">
+        <ul className="batch-list">
+          {queue.map((it, i) => (
+            <li key={i} className={`batch-${it.status}`}>
+              <span className="batch-icon">
+                {it.status === 'done' ? <Icon name="check" size={14} /> : it.status === 'error' ? <Icon name="alert" size={14} /> : it.status === 'working' ? <span className="spinner" /> : <span className="dot" />}
+              </span>
+              <span className="batch-name">{it.name}</span>
+              <span className="batch-msg">{it.status === 'working' && it.pct !== undefined && it.pct > 0 ? `${it.msg ?? ''} ${Math.round(it.pct * 100)}%` : it.msg}</span>
+            </li>
+          ))}
+        </ul>
+        {batchDone && (
+          <div className="batch-summary">
+            <span>
+              {batchDone.ok} de {queue.length} importada{queue.length === 1 ? '' : 's'}
+              {batchDone.ok > 0 && (batchDone.pinned ? ' y fijadas en tu biblioteca personal.' : ' en Mis canciones.')}
+            </span>
+            <button className="btn primary" onClick={() => (batchDone.first ? onSaved(batchDone.first) : onClose())}>
+              Ver canciones
+            </button>
+          </div>
+        )}
+      </div>
+    ) : null;
+
+  const PinToggle = () =>
+    canPin ? (
+      <Toggle label="Fijar en mi biblioteca personal (solo en este equipo, fuera del repositorio)" checked={pin} onChange={setPin} />
+    ) : (
+      <p className="hint">Se guardarán en Mis canciones, sincronizadas con tu cuenta.</p>
+    );
+
+  const onLink = async () => {
+    if (busy || running) return;
     setError(null);
-    setBusy({ stage: 'Preparando…', pct: 0 });
+    setBusy({ stage: 'Descargando el audio del enlace…', pct: 0 });
     try {
-      if (f === 'link') {
-        setBusy({ stage: 'Descargando el audio del enlace…', pct: 0 });
-        f = await fetchAudioFromUrl(link);
-      }
+      const f = await fetchAudioFromUrl(link);
       const s = await convertAudio(f, { kind, sensitivity: sens, bpm: audioBpm, onProgress: (stage, pct) => setBusy({ stage, pct }) });
-      addUserSong(s);
+      if (pin) await pinSongs([s]);
+      else addUserSong(s);
       onSaved(s);
     } catch (e) {
       setError(`No se pudo convertir el audio: ${(e as Error).message}`);
@@ -118,7 +192,7 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
   };
 
   return (
-    <div className="modal-back" onClick={() => !busy && onClose()}>
+    <div className="modal-back" onClick={() => !busy && !running && onClose()}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
           <h2>{initial ? 'Editar canción' : 'Nueva canción'}</h2>
@@ -131,7 +205,7 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
             <Icon name="pen" size={15} /> Escribir partitura
           </button>
           <button className={`tab ${tab === 'midi' ? 'active' : ''}`} onClick={() => setTab('midi')}>
-            <Icon name="upload" size={15} /> Importar archivo MIDI
+            <Icon name="upload" size={15} /> Importar MIDI
           </button>
           <button className={`tab ${tab === 'audio' ? 'active' : ''}`} onClick={() => setTab('audio')}>
             <Icon name="wave" size={15} /> Convertir audio
@@ -229,26 +303,40 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
                 <span className="muted small">{Math.round(busy.pct * 100)}%</span>
               </div>
             ) : (
-              <div
-                className="dropzone"
-                onClick={() => audioRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  onAudio(e.dataTransfer.files[0]);
-                }}
-              >
-                <Icon name="upload" size={22} />
-                Arrastra aquí un archivo de audio o haz clic para elegirlo
-                <input ref={audioRef} type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" hidden onChange={(e) => onAudio(e.target.files?.[0])} />
-              </div>
+              !running && (
+                <div
+                  className="dropzone"
+                  onClick={() => audioRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    runBatch(e.dataTransfer.files, 'audio');
+                  }}
+                >
+                  <Icon name="upload" size={22} />
+                  Arrastra aquí uno o varios audios, o haz clic para elegirlos
+                  <input
+                    ref={audioRef}
+                    type="file"
+                    multiple
+                    accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac"
+                    hidden
+                    onChange={(e) => {
+                      runBatch(e.target.files, 'audio');
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+              )
             )}
-            {!busy && (
+            <PinToggle />
+            <BatchView />
+            {!busy && !running && (
               <form
                 className="link-row"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (link.trim()) onAudio('link');
+                  if (link.trim()) onLink();
                 }}
               >
                 <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="…o pega el enlace directo a un archivo de audio (mp3, wav, Dropbox, Google Drive)" />
@@ -262,22 +350,36 @@ export function SongCreator({ initial, onClose, onSaved }: Props) {
         ) : (
           <div className="creator">
             <p>
-              Importa cualquier archivo <b>.mid / .midi</b>: se separará automáticamente en mano derecha e izquierda y podrás escucharlo con cualquier
-              sonido, practicarlo en modo espera y verlo en la cascada de notas.
+              Importa uno o muchos archivos <b>.mid / .midi</b> a la vez: cada uno se separa en mano derecha e izquierda y podrás escucharlo con cualquier
+              sonido, practicarlo y verlo en la cascada. El título y el autor se toman del nombre del archivo (<code>Artista - Canción.mid</code>).
             </p>
-            <div
-              className="dropzone"
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                onFile(e.dataTransfer.files[0]);
-              }}
-            >
-              <Icon name="upload" size={22} />
-              Arrastra aquí un archivo MIDI o haz clic para elegirlo
-              <input ref={fileRef} type="file" accept=".mid,.midi,audio/midi" hidden onChange={(e) => onFile(e.target.files?.[0])} />
-            </div>
+            {!running && (
+              <div
+                className="dropzone"
+                onClick={() => fileRef.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  runBatch(e.dataTransfer.files, 'midi');
+                }}
+              >
+                <Icon name="upload" size={22} />
+                Arrastra aquí uno o varios archivos MIDI, o haz clic para elegirlos
+                <input
+                  ref={fileRef}
+                  type="file"
+                  multiple
+                  accept=".mid,.midi,audio/midi"
+                  hidden
+                  onChange={(e) => {
+                    runBatch(e.target.files, 'midi');
+                    e.target.value = '';
+                  }}
+                />
+              </div>
+            )}
+            <PinToggle />
+            <BatchView />
             {error && <div className="callout warn"><span className="callout-label">No se pudo completar</span><p>{error}</p></div>}
           </div>
         )}
