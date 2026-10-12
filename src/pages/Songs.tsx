@@ -66,6 +66,7 @@ export function Songs() {
   const [showNotation, setShowNotation] = useState(false);
   const pendingNotes = useRef(new Map<number, Hand | null>());
   const flushRaf = useRef(0);
+  const loadedSong = useRef<string | null>(null);
 
   const events = useMemo(() => {
     try {
@@ -90,7 +91,12 @@ export function Songs() {
   // ---- Carga de canción -------------------------------------------------
   useEffect(() => {
     localStorage.setItem('piano-pro-song', song.id);
-    const resume = player.isPlaying ? player.getBeat() : -1;
+    const sameSong = loadedSong.current === song.id;
+    loadedSong.current = song.id;
+    const wasPlaying = player.isPlaying;
+    // Misma canción (solo cambió el pedal automático): sigue desde el mismo punto.
+    // Canción nueva: empieza desde el principio, sonando si la anterior estaba sonando.
+    const resume = wasPlaying ? (sameSong ? player.getBeat() : 0) : -1;
     player.load(playEvents, song.bpm, {
       // Las teclas iluminadas se agrupan en un solo redibujado por fotograma
       onNote: (e, on) => {
@@ -116,9 +122,12 @@ export function Songs() {
     player.setSpeed(speed);
     setSounding({});
     if (resume >= 0) {
-      // Cambió solo el pedal automático: seguir sonando desde el mismo punto
       player.setMuted(userHands);
       player.play(resume);
+      if (!sameSong) {
+        setBeat(0);
+        setWaitIdx(0);
+      }
       return;
     }
     setPlaying(false);
