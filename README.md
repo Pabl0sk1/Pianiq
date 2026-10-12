@@ -36,7 +36,7 @@ Curso de **4 niveles, 70 lecciones y 98 ejercicios interactivos**, sin saltos: d
 ![Pianiq — canciones en modo oscuro](docs/canciones-oscuro.png)
 
 - **12 obras clásicas a dos manos:** Bach, Beethoven, Mozart, Satie, Pachelbel, Vivaldi, Grieg, Brahms…
-- **Música de dibujos animados:** 7 obras de dominio público que hicieron famosas los cortos clásicos, entre ellas *The Entertainer* completo y el primer movimiento entero de la Quinta de Beethoven.
+- **Música de dibujos animados:** 14 obras de dominio público que hicieron famosas los cortos clásicos y *Fantasía*: la *Tocata y fuga* de Bach, la *Marcha nupcial*, *Carmen*, la *Marcha turca*, *Maple Leaf Rag*, la Quinta de Beethoven y más, la mayoría completas.
 - **Al reproducir:**
   - cascada de notas;
   - partitura activable (arriba, al lado o en ventana flotante);
@@ -156,3 +156,6 @@ src/
   - *The Entertainer* (Scott Joplin), edición original de 1902, dominio público.
   - *Sinfonía n.º 5, I. Allegro con brio* (Beethoven), dominio público; reducción a piano propia a partir de la partitura orquestal.
   - *El Danubio azul* (Strauss II), arreglo para piano de N. Kouremenos, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). La conversión se distribuye bajo la misma licencia.
+  - Dominio público: *Rondo alla turca* (Mozart), *Maple Leaf Rag* (Joplin), *The Stars and Stripes Forever* (Sousa), *Tocata y fuga en re menor* (Bach) y *En la gruta del rey de la montaña* en la versión para piano de Grieg.
+  - *Marcha nupcial* (Mendelssohn), arreglo para órgano de Théodore Dubois, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  - *Carmen: preludio* (Bizet), versión para piano, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/).

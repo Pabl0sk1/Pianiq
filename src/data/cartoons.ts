@@ -2,6 +2,12 @@ import type { NoteEvent, Song } from '../lib/notation';
 import danubeEvents from './pd-midi/danube.json';
 import fifthEvents from './pd-midi/fifth.json';
 import entertainerEvents from './pd-midi/entertainer.json';
+import allaTurcaEvents from './pd-midi/alla-turca.json';
+import mapleEvents from './pd-midi/maple-leaf.json';
+import starsEvents from './pd-midi/stars-stripes.json';
+import weddingEvents from './pd-midi/wedding-march.json';
+import toccataEvents from './pd-midi/toccata.json';
+import carmenEvents from './pd-midi/carmen.json';
 
 // Música de dominio público que los dibujos animados clásicos hicieron famosa.
 // Arreglos propios para piano a dos manos. Duraciones en negras (q=1, e=0.5, s=0.25).
@@ -153,7 +159,138 @@ const weasel: Song = {
   ],
 };
 
-export const CARTOON_SONGS: Song[] = [weasel, morning, cancan, danube, valkyries, entertainer, fifthSym];
+// ---------------------------------------------------------------------------
+// Obras completas del Mutopia Project (convertidas desde MIDI en src/data/pd-midi)
+
+const mutopia = (s: Omit<Song, 'events' | 'source'>, events: unknown): Song => ({ ...s, events: events as NoteEvent[], source: 'midi' });
+
+const allaTurca = mutopia(
+  {
+    id: 'cartoon-alla-turca',
+    title: 'Marcha turca (Rondo alla turca)',
+    composer: 'Wolfgang Amadeus Mozart',
+    period: 'Sonata K. 331 · 1783 · obra completa',
+    difficulty: 4,
+    bpm: 60,
+    timeSignature: [2, 4],
+    description:
+      'Las semicorcheas traviesas que acompañan carreras, persecuciones y travesuras en los dibujos animados. Tercer movimiento completo de la Sonata K. 331 (Mutopia Project, dominio público).',
+  },
+  allaTurcaEvents,
+);
+
+const mapleLeaf = mutopia(
+  {
+    id: 'cartoon-maple-leaf',
+    title: 'Maple Leaf Rag',
+    composer: 'Scott Joplin',
+    period: 'Ragtime · 1899 · obra completa',
+    difficulty: 5,
+    bpm: 120,
+    timeSignature: [2, 4],
+    description:
+      'El ragtime que puso de moda a Joplin y el sonido del piano de saloon en los cortos del Oeste. Obra completa (Mutopia Project, dominio público). Mano izquierda "stride" de saltos amplios.',
+  },
+  mapleEvents,
+);
+
+const starsStripes = mutopia(
+  {
+    id: 'cartoon-stars-stripes',
+    title: 'The Stars and Stripes Forever',
+    composer: 'John Philip Sousa',
+    period: 'Marcha · 1896 · versión para piano completa',
+    difficulty: 4,
+    bpm: 240,
+    timeSignature: [2, 2],
+    description:
+      'La marcha de los desfiles, los finales triunfales y los personajes que se ponen firmes con la bandera de fondo. Versión para piano completa (Mutopia Project, dominio público), con el famoso trío del flautín.',
+  },
+  starsEvents,
+);
+
+const weddingMarch = mutopia(
+  {
+    id: 'cartoon-wedding-march',
+    title: 'Marcha nupcial',
+    composer: 'Felix Mendelssohn',
+    period: 'El sueño de una noche de verano · 1842 · arreglo para órgano de Th. Dubois',
+    difficulty: 4,
+    bpm: 130,
+    timeSignature: [4, 4],
+    description:
+      'Suena en todas las bodas de los dibujos animados (a menudo justo antes de que el novio huya). Arreglo para órgano de Théodore Dubois (Mutopia Project, CC BY-SA 4.0); el pedalero va en la mano izquierda. Pruébala con el Órgano de Tubos.',
+  },
+  weddingEvents,
+);
+
+const toccata = mutopia(
+  {
+    id: 'cartoon-toccata',
+    title: 'Tocata y fuga en re menor',
+    composer: 'Johann Sebastian Bach',
+    period: 'BWV 565 · obra completa para órgano',
+    difficulty: 5,
+    bpm: 60,
+    timeSignature: [4, 4],
+    description:
+      'Abre la película "Fantasía" de Disney (1940) y es la música del villano tocando el órgano en su castillo encantado. Obra completa para órgano (Mutopia Project, dominio público); el pedalero va en la mano izquierda. Escúchala con el Órgano de Tubos y la reverb al máximo.',
+  },
+  toccataEvents,
+);
+
+const carmen = mutopia(
+  {
+    id: 'cartoon-carmen',
+    title: 'Carmen: preludio',
+    composer: 'Georges Bizet',
+    period: 'Carmen · 1875 · versión para piano',
+    difficulty: 4,
+    bpm: 116,
+    timeSignature: [2, 4],
+    description:
+      'La música de las corridas de toros de los dibujos animados, con Bugs Bunny haciendo de torero: la fiesta inicial y, en medio, la marcha del torero. Versión para piano (Mutopia Project, CC BY-SA 2.5).',
+  },
+  carmenEvents,
+);
+
+// ---------------------------------------------------------------------------
+// Marcha fúnebre — Chopin (Sonata n.º 2, Op. 35), tema principal. Arreglo propio.
+const fmM1 = 'Bb3+Bb4:q Bb3+Bb4:e. Bb3+Bb4:s Bb3+Bb4:h';
+const fmM2 = 'Db4+Db5:e. C4+C5:s C4+C5:e. Bb3+Bb4:s Bb3+Bb4:e. A3+A4:s Bb3+Bb4:q';
+const fmL = 'Bb1+F2:q Gb1+Db2:q Bb1+F2:q Gb1+Db2:q';
+const funeral: Song = {
+  id: 'cartoon-funeral',
+  title: 'Marcha fúnebre (tema principal)',
+  composer: 'Frédéric Chopin',
+  period: 'Sonata n.º 2, Op. 35 · 1839',
+  difficulty: 1,
+  bpm: 50,
+  timeSignature: [4, 4],
+  description:
+    'El "tan, tan, ta-tan" del personaje que se da por muerto en los dibujos animados (y que siempre resucita). Tema principal en Si bemol menor sobre el balanceo grave de la mano izquierda. Arreglo propio.',
+  tracks: [
+    { hand: 'R', notes: `${fmM1} | ${fmM2} | ${fmM1} | ${fmM2} | ${fmM1} | ${fmM2} | ${fmM1} | ${fmM2} | Bb3+Db4+F4+Bb4:w`, velocity: 0.7 },
+    { hand: 'L', notes: `${[fmL, fmL, fmL, fmL, fmL, fmL, fmL, fmL].join(' | ')} | Bb1+F2+Bb2:w`, velocity: 0.55 },
+  ],
+};
+
+export const CARTOON_SONGS: Song[] = [
+  weasel,
+  funeral,
+  morning,
+  cancan,
+  danube,
+  weddingMarch,
+  carmen,
+  valkyries,
+  allaTurca,
+  starsStripes,
+  entertainer,
+  mapleLeaf,
+  fifthSym,
+  toccata,
+];
 
 /** Obras de la sección clásica que también son famosas por los dibujos animados. */
 export const CARTOON_ALSO = ['mountain-king'];

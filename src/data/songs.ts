@@ -1,4 +1,5 @@
-import { rep, type Song } from '../lib/notation';
+import { rep, type NoteEvent, type Song } from '../lib/notation';
+import mountainEvents from './pd-midi/mountain-king.json';
 
 // Todas las duraciones están en negras (q=1, e=0.5, s=0.25, h=2, w=4, t=1/3).
 // Para añadir una canción nueva basta con escribir sus manos en este formato.
@@ -317,25 +318,18 @@ const spring: Song = {
 
 // ---------------------------------------------------------------------------
 // En la gruta del rey de la montaña — Grieg (Peer Gynt)
-const hallA = 'B3:e C#4 D4 E4 F#4 D4 F#4:q | F4:e C#4 F4:q E4:e C4 E4:q | B3:e C#4 D4 E4 F#4 D4 F#4 B4 | A4:e F#4 D4 F#4 A4:h';
-const hallL = rep('B2:e r F#2 r B2 r F#2 r', 1) + ' | ' + rep('C#3:e r F#2 r C3 r F#2 r', 1) + ' | ' + rep('B2:e r F#2 r B2 r F#2 r', 2);
 const hall: Song = {
   id: 'mountain-king',
   title: 'En la gruta del rey de la montaña',
   composer: 'Edvard Grieg',
-  period: 'Romántico · 1875',
-  difficulty: 2,
-  bpm: 112,
+  period: 'Romántico · 1875 · versión para piano del autor',
+  difficulty: 4,
+  bpm: 138,
   timeSignature: [4, 4],
-  description: 'De "Peer Gynt". Un motivo sigiloso en Si menor que se repite cada vez más fuerte: practica el crescendo.',
-  tracks: [
-    {
-      hand: 'R',
-      notes: `${hallA} | ${hallA} | ${hallA.replace(/(\D)(\d)/g, (_, l: string, o: string) => l + (Number(o) + 1))} | B4+B5:w`,
-      velocity: 0.7,
-    },
-    { hand: 'L', notes: `${hallL} | ${hallL} | ${hallL} | B1+B2:w` },
-  ],
+  description:
+    'De "Peer Gynt", en la versión para piano del propio Grieg (Mutopia Project, dominio público). Un motivo sigiloso en Si menor que se repite cada vez más fuerte y más rápido hasta estallar: practica el crescendo y el accelerando.',
+  events: mountainEvents as NoteEvent[],
+  source: 'midi',
 };
 
 export const CLASSICAL_SONGS: Song[] = [
