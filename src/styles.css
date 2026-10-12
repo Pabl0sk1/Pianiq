@@ -61,14 +61,14 @@
 .theme-sage {
   --ink: #2c4a3e;
   --ink-2: #40604f;
-  --accent: #b5784a;
-  --accent-soft: #f2e2d2;
+  --accent: #4f8a66;
+  --accent-soft: #dfeee3;
 }
 .theme-wine {
   --ink: #4b2532;
   --ink-2: #653646;
-  --accent: #b88d45;
-  --accent-soft: #f2e7cf;
+  --accent: #a8485e;
+  --accent-soft: #f4dfe4;
 }
 
 /* ---------- Modo oscuro: noche, con el latón como luz ---------- */
@@ -105,14 +105,32 @@
   --ink-2: #8d99a6;
 }
 :root[data-mode='dark'] .theme-sage {
-  --accent: #c99a6b;
-  --primary-bg: #c99a6b;
-  --ink: #b9d0c2;
+  --accent: #8fbf9b;
+  --accent-soft: #1d2c24;
+  --primary-bg: #8fbf9b;
+  --primary-fg: #0f1a14;
+  --ink: #c3d8ca;
+  --ink-2: #86a291;
+  --bg: #10171a;
+  --card: #172022;
+  --card-2: #1b2628;
+  --line: #25322f;
+  --line-strong: #34443f;
+  --menu-bg: #1b2628;
 }
 :root[data-mode='dark'] .theme-wine {
-  --accent: #d2ab68;
-  --primary-bg: #d2ab68;
-  --ink: #e2c3cb;
+  --accent: #df8fa0;
+  --accent-soft: #33202a;
+  --primary-bg: #df8fa0;
+  --primary-fg: #24101a;
+  --ink: #e8c9d0;
+  --ink-2: #a8838c;
+  --bg: #17121a;
+  --card: #1f1922;
+  --card-2: #251e28;
+  --line: #322832;
+  --line-strong: #443844;
+  --menu-bg: #251e28;
 }
 
 /* ---------- Base ---------- */
@@ -866,11 +884,11 @@ textarea:focus {
   height: 61%;
 }
 .key.hl-target.white {
-  background: linear-gradient(180deg, #f6e7c9, #e8c58d);
-  box-shadow: inset 0 -6px 0 #b07a43;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 16%, #fffaf0), color-mix(in srgb, var(--accent) 48%, #fffaf0));
+  box-shadow: inset 0 -6px 0 var(--accent);
 }
 .key.hl-target.black {
-  background: linear-gradient(180deg, #3b2c18, #b07a43);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 25%, #111), var(--accent));
 }
 .key.hl-rh.white,
 .key.hl-demo.white {
@@ -909,10 +927,10 @@ textarea:focus {
   background: linear-gradient(180deg, #1d2530, #5a6c80);
 }
 .key.hl-root.white {
-  background: linear-gradient(180deg, #f6e7c9, #dcae72);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, #fffaf0), color-mix(in srgb, var(--accent) 60%, #fffaf0));
 }
 .key.hl-root.black {
-  background: linear-gradient(180deg, #3b2c18, #b07a43);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 25%, #111), var(--accent));
 }
 @keyframes shake {
   25% {
@@ -1854,7 +1872,7 @@ tbody tr:hover td {
   fill: #b46e38;
 }
 .score-cursor {
-  fill: rgba(176, 122, 67, 0.55);
+  fill: color-mix(in srgb, var(--accent) 60%, transparent);
 }
 .floating {
   position: fixed;
@@ -2102,12 +2120,12 @@ tbody tr:hover td {
   border-top-color: #5b3a24;
 }
 .root.on {
-  background: #e8c58d;
-  color: #2a1c0c;
-  box-shadow: inset 0 -4px 0 #b07a43;
+  background: color-mix(in srgb, var(--accent) 45%, #fffaf0);
+  color: #1d1408;
+  box-shadow: inset 0 -4px 0 var(--accent);
 }
 .root.sharp.on {
-  background: #b07a43;
+  background: var(--accent);
   color: #fff;
 }
 .formula-grid {

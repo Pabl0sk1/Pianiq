@@ -118,8 +118,8 @@ export default function App() {
                   value={(THEMES as readonly string[]).includes(ui.theme) ? ui.theme : 'ink'}
                   options={[
                     { value: 'ink', label: <span className="swatch-label"><i style={{ background: '#1f3044' }} /><i style={{ background: '#b9814a' }} />Tinta y latón</span> },
-                    { value: 'sage', label: <span className="swatch-label"><i style={{ background: '#2f4a3f' }} /><i style={{ background: '#c08a5b' }} />Salvia</span> },
-                    { value: 'wine', label: <span className="swatch-label"><i style={{ background: '#4a2430' }} /><i style={{ background: '#c79a52' }} />Burdeos</span> },
+                    { value: 'sage', label: <span className="swatch-label"><i style={{ background: '#2c4a3e' }} /><i style={{ background: '#4f8a66' }} />Salvia</span> },
+                    { value: 'wine', label: <span className="swatch-label"><i style={{ background: '#4b2532' }} /><i style={{ background: '#a8485e' }} />Burdeos</span> },
                   ]}
                   onChange={(theme) => setUi({ theme })}
                 />
