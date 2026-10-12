@@ -60,7 +60,7 @@ Curso de **4 niveles, 70 lecciones y 98 ejercicios interactivos**, sin saltos: d
 
 ## Empezar
 
-Necesitas [Node.js](https://nodejs.org) 20 o superior.
+Necesitas [Node.js](https://nodejs.org) 22.18 o superior (por `node:sqlite` y la ejecución directa de TypeScript).
 
 ```bash
 npm install
@@ -72,9 +72,29 @@ Se abre en <http://localhost:5173>. En Windows también puedes hacer doble clic 
 La primera vez que eliges el piano de cola hace falta conexión: sus muestras de audio se descargan de `tonejs.github.io`. Mientras tanto suena un piano sintético.
 
 ```bash
-npm run build     # versión de producción en dist/
-npm run preview   # sirve la versión compilada
+npm run build     # compila la app en dist/
+npm start         # servidor de producción: app + API (http://localhost:3000)
 ```
+
+## Cuentas de usuario
+
+Pianiq es una plataforma con cuentas: registro, inicio de sesión, recuperación de contraseña por correo, perfil editable (foto, nombre, usuario, correo, nivel y biografía), cambio de contraseña, gestión de sesiones abiertas, exportación de datos y borrado de cuenta. El progreso del curso, las canciones propias, los presets y los ajustes se guardan en la cuenta.
+
+- **Usuario de pruebas** (se crea solo en desarrollo): `admin` / `admin123`, con rol de administrador.
+- **Administración** (`/admin`): lista de usuarios, búsqueda, cambio de rol, activar o desactivar cuentas y eliminarlas.
+- **Correo:** sin configuración, los correos (bienvenida, recuperación de contraseña…) se guardan en el **buzón de pruebas** (`/dev/buzon`, solo en desarrollo). Para enviarlos de verdad, define las variables SMTP.
+
+La API vive en [`server/`](server): Express, SQLite nativo de Node (`node:sqlite`), contraseñas con scrypt, sesiones en cookie `httpOnly` guardadas en la base de datos, enlaces de recuperación de un solo uso (30 min) y límite de intentos contra fuerza bruta. La base de datos se crea en `server/data/pianiq.db`, fuera del repositorio.
+
+| Variable | Para qué sirve |
+|---|---|
+| `PORT` | Puerto de `npm start` (por defecto 3000) |
+| `PUBLIC_URL` | URL pública, usada en los enlaces de los correos |
+| `PIANIQ_DB` | Ruta de la base de datos |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Envío real de correos |
+| `PIANIQ_SEED_ADMIN=1` | Crea `admin` / `admin123` también en producción (no recomendado) |
+
+En producción la cookie de sesión lleva `Secure`, así que hay que servir Pianiq por HTTPS (o `localhost`).
 
 ## Atajos
 
@@ -112,16 +132,18 @@ Desde la app, **Canciones → Crear / Importar** permite escribir, importar MIDI
 | Piano de cola | Salamander Grand Piano (CC-BY, Alexander Holm) |
 | MIDI | Web MIDI API y [@tonejs/midi](https://github.com/Tonejs/Midi) |
 | Audio → notas | [Basic Pitch](https://github.com/spotify/basic-pitch-ts) (Spotify) con TensorFlow.js, cargado bajo demanda |
-| Estado | Zustand, guardado en el navegador |
+| Servidor | Express + SQLite nativo de Node (`node:sqlite`), scrypt, sesiones con cookie `httpOnly` |
+| Estado | Zustand, sincronizado con la cuenta del usuario |
 | Tipografía | Fraunces, IBM Plex Sans e IBM Plex Mono (incluidas en el proyecto) |
 
 ```
+server/           API: cuentas, sesiones, perfiles, datos del usuario y correo
 src/
 ├── audio/        motor de sonido, instrumentos, reproductor y entradas (ratón, teclado, MIDI)
 ├── components/   teclado, cascada, partitura, pentagrama, controles y marca
 ├── data/         lecciones del curso, obras clásicas y biblioteca personal
 ├── lib/          teoría musical, notación de texto, MIDI y conversión de audio
-├── pages/        Tocar, Aprender, Canciones, Oído y Diccionario
+├── pages/        Tocar, Aprender, Canciones, Oído, Diccionario, acceso, perfil y administración
 └── state/        ajustes, progreso y canciones del usuario
 ```
 

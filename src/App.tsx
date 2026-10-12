@@ -2,31 +2,43 @@ import { useEffect, useState } from 'react';
 import { engine, metronome } from './audio/engine';
 import { input, installComputerKeyboard, installMidi } from './audio/input';
 import { useApp, useLive } from './state/store';
+import { useAuth } from './state/auth';
 import { Metronome } from './components/Metronome';
 import { Select, Toggle } from './components/Controls';
 import { useOutsideClose } from './components/useOutsideClose';
-import { Wordmark } from './components/Brand';
+import { PianiqMark, Wordmark } from './components/Brand';
 import { Icon, type IconName } from './components/Icon';
+import { UserMenu } from './components/UserMenu';
+import { linkProps, navigate, useLocation } from './lib/router';
 import { FreePlay } from './pages/FreePlay';
 import { Learn } from './pages/Learn';
 import { Songs } from './pages/Songs';
 import { Ear } from './pages/Ear';
 import { Dictionary } from './pages/Dictionary';
+import { ForgotPage, LoginPage, RegisterPage, ResetPage } from './pages/Auth';
+import { ProfilePage } from './pages/Profile';
+import { AdminPage } from './pages/Admin';
+import { DevMailbox } from './pages/DevMailbox';
 
-type Tab = 'play' | 'learn' | 'songs' | 'ear' | 'dict';
-
-const TABS: { id: Tab; name: string; icon: IconName }[] = [
-  { id: 'play', name: 'Tocar', icon: 'keys' },
-  { id: 'learn', name: 'Aprender', icon: 'learn' },
-  { id: 'songs', name: 'Canciones', icon: 'songs' },
-  { id: 'ear', name: 'Oído', icon: 'ear' },
-  { id: 'dict', name: 'Diccionario', icon: 'book' },
+const TABS: { path: string; name: string; icon: IconName }[] = [
+  { path: '/', name: 'Tocar', icon: 'keys' },
+  { path: '/aprender', name: 'Aprender', icon: 'learn' },
+  { path: '/canciones', name: 'Canciones', icon: 'songs' },
+  { path: '/oido', name: 'Oído', icon: 'ear' },
+  { path: '/diccionario', name: 'Diccionario', icon: 'book' },
 ];
+
+/** Rutas que no necesitan sesión */
+const PUBLIC = ['/login', '/registro', '/recuperar', '/restablecer', '/dev/buzon'];
+const PRIVATE = [...TABS.map((t) => t.path), '/perfil', '/admin'];
 
 const THEMES = ['ink', 'sage', 'wine'] as const;
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>(() => (localStorage.getItem('piano-pro-tab') as Tab) ?? 'play');
+  const { path } = useLocation();
+  const status = useAuth((s) => s.status);
+  const user = useAuth((s) => s.user);
+  const initAuth = useAuth((s) => s.init);
   const sound = useApp((s) => s.sound);
   const metro = useApp((s) => s.metronome);
   const ui = useApp((s) => s.ui);
@@ -49,7 +61,9 @@ export default function App() {
     document.documentElement.style.colorScheme = mode;
   }, [mode]);
 
-  useEffect(() => localStorage.setItem('piano-pro-tab', tab), [tab]);
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
   useEffect(() => engine.apply(sound), [sound, ready]);
   useEffect(() => metronome.configure(metro), [metro, ready]);
   useEffect(() => installComputerKeyboard(), []);
@@ -60,7 +74,7 @@ export default function App() {
   }, []);
   useEffect(() => {
     input.releaseEverything();
-  }, [tab]);
+  }, [path]);
 
   // El navegador solo permite activar el audio tras un gesto del usuario:
   // se activa en silencio con el primer clic o tecla, sin pantallas de aviso.
@@ -75,17 +89,47 @@ export default function App() {
     };
   }, [ready]);
 
+  // Protección de rutas: sin sesión → login (recordando a dónde ibas); con sesión → fuera de las pantallas de acceso
+  const isPublic = PUBLIC.includes(path);
+  useEffect(() => {
+    if (status === 'guest' && !isPublic) navigate(path === '/' ? '/login' : `/login?next=${encodeURIComponent(path)}`, true);
+    if (status === 'user' && isPublic && path !== '/dev/buzon') navigate('/', true);
+    if (status === 'user' && path === '/admin' && user?.role !== 'admin') navigate('/', true);
+  }, [status, isPublic, path, user?.role]);
+
+  const themeClass = `app theme-${(THEMES as readonly string[]).includes(ui.theme) ? ui.theme : 'ink'}`;
+
+  if (status === 'loading')
+    return (
+      <div className={`${themeClass} splash`}>
+        <PianiqMark size={56} />
+      </div>
+    );
+
+  if (path === '/dev/buzon')
+    return (
+      <div className={`${themeClass} scroll-page`}>
+        <DevMailbox />
+      </div>
+    );
+
+  if (status === 'guest' || isPublic) {
+    const page =
+      path === '/registro' ? <RegisterPage /> : path === '/recuperar' ? <ForgotPage /> : path === '/restablecer' ? <ResetPage /> : <LoginPage />;
+    return <div className={`${themeClass} scroll-page`}>{page}</div>;
+  }
+
   return (
-    <div className={`app theme-${(THEMES as readonly string[]).includes(ui.theme) ? ui.theme : 'ink'}`}>
+    <div className={themeClass}>
       <header className="topbar">
-        <div className="brand">
+        <a className="brand" {...linkProps('/')}>
           <Wordmark size={30} />
-        </div>
+        </a>
         <nav className="nav">
           {TABS.map((t) => (
-            <button key={t.id} className={`nav-btn ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+            <a key={t.path} className={`nav-btn ${path === t.path ? 'active' : ''}`} {...linkProps(t.path)}>
               <Icon name={t.icon} size={17} /> {t.name}
-            </button>
+            </a>
           ))}
         </nav>
         <Metronome />
@@ -138,14 +182,26 @@ export default function App() {
             </div>
           )}
         </div>
+        <UserMenu />
       </header>
 
       <div className="content">
-        {tab === 'play' && <FreePlay />}
-        {tab === 'learn' && <Learn />}
-        {tab === 'songs' && <Songs />}
-        {tab === 'ear' && <Ear />}
-        {tab === 'dict' && <Dictionary />}
+        {path === '/' && <FreePlay />}
+        {path === '/aprender' && <Learn />}
+        {path === '/canciones' && <Songs />}
+        {path === '/oido' && <Ear />}
+        {path === '/diccionario' && <Dictionary />}
+        {path === '/perfil' && <ProfilePage />}
+        {path === '/admin' && user?.role === 'admin' && <AdminPage />}
+        {!PRIVATE.includes(path) && (
+          <div className="page not-found">
+            <h1>Esta página no existe</h1>
+            <p className="muted">Puede que el enlace esté mal escrito o que la página se haya movido.</p>
+            <a className="btn primary" {...linkProps('/')}>
+              Ir a tocar el piano
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

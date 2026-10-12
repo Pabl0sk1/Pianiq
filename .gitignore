@@ -3,3 +3,6 @@ dist
 
 # Canciones de la biblioteca personal (pueden tener derechos de autor)
 src/data/library/*.json
+
+# Base de datos local (usuarios y sesiones)
+server/data/

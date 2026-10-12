@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { createApp } from './server/app.ts';
 
 /** Permite que la app guarde canciones en src/data/library (biblioteca permanente). */
 function libraryWriter(): Plugin {
@@ -58,7 +59,18 @@ function libraryWriter(): Plugin {
   };
 }
 
+/** Monta la API (login, perfiles, datos) dentro del servidor de desarrollo de Vite. */
+function apiServer(): Plugin {
+  return {
+    name: 'pianiq-api',
+    configureServer(server) {
+      const app = createApp();
+      server.middlewares.use((req, res, next) => (req.url?.startsWith('/api/') ? app(req as never, res as never, next) : next()));
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), libraryWriter()],
+  plugins: [react(), libraryWriter(), apiServer()],
   server: { port: 5173, open: true },
 });
