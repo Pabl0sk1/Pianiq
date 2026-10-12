@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CLASSICAL_SONGS } from '../data/songs';
 import { LIBRARY_SONGS, pinSong } from '../data/library';
+import { CARTOON_SONGS } from '../data/cartoons';
 import { applyAutoPedal, songEvents, songLength, type Hand, type NoteEvent, type Song } from '../lib/notation';
 import { fitRange } from '../lib/keyboard';
 import { SongPlayer } from '../audio/player';
@@ -50,7 +51,7 @@ export function Songs() {
   const naming = useApp((s) => s.ui.naming);
   const ui = useApp((s) => s.ui);
   const setUi = useApp((s) => s.setUi);
-  const all = useMemo(() => [...CLASSICAL_SONGS, ...LIBRARY_SONGS, ...userSongs], [userSongs]);
+  const all = useMemo(() => [...CLASSICAL_SONGS, ...CARTOON_SONGS, ...LIBRARY_SONGS, ...userSongs], [userSongs]);
   const [songId, setSongId] = useState(() => localStorage.getItem('piano-pro-song') ?? CLASSICAL_SONGS[0].id);
   const song = all.find((s) => s.id === songId) ?? CLASSICAL_SONGS[0];
   const [creator, setCreator] = useState<Song | 'new' | null>(null);
@@ -266,6 +267,15 @@ export function Songs() {
         </button>
         <h3>Música clásica</h3>
         {classical.map((s) => (
+          <button key={s.id} className={`song-item ${s.id === song.id ? 'active' : ''}`} onClick={() => setSongId(s.id)}>
+            <span className="song-title">{s.title}</span>
+            <span className="song-sub">
+              {s.composer} · <Stars n={s.difficulty} />
+            </span>
+          </button>
+        ))}
+        <h3>Música de dibujos animados</h3>
+        {CARTOON_SONGS.map((s) => (
           <button key={s.id} className={`song-item ${s.id === song.id ? 'active' : ''}`} onClick={() => setSongId(s.id)}>
             <span className="song-title">{s.title}</span>
             <span className="song-sub">
